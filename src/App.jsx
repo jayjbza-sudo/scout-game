@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-// --- ส่วนประกอบไอคอน SVG เพื่อให้รันได้ทุกที่โดยไม่ต้องพึ่งพาไลบรารีภายนอก ---
+// --- ส่วนประกอบไอคอน SVG ---
 const Play = ({ size = 24, className }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <polygon points="6 3 20 12 6 21 6 3" fill="currentColor" />
@@ -44,6 +44,17 @@ const MapIcon = ({ size = 24, className }) => (
   </svg>
 );
 
+const Trophy = ({ size = 24, className }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+    <path d="M4 22h16" />
+    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+  </svg>
+);
+
 // --- การตั้งค่าข้อมูลพื้นฐานของเกม ---
 const BIN_TYPES = [
   { id: 'general', color: 'bg-blue-500', name: 'ทั่วไป', icon: '🗑️' },
@@ -57,18 +68,29 @@ const TRASH_DICTIONARY = {
   plastic_bag: { id: 'plastic_bag', icon: '🛍️', name: 'ถุงพลาสติก', bin: 'general' },
   snack: { id: 'snack', icon: '🍬', name: 'ห่อขนม', bin: 'general' },
   tissue: { id: 'tissue', icon: '🧻', name: 'ทิชชู่ใช้แล้ว', bin: 'general' },
+  foam_box: { id: 'foam_box', icon: '🥡', name: 'กล่องโฟม', bin: 'general' },
+  used_mask: { id: 'used_mask', icon: '😷', name: 'หน้ากากอนามัย', bin: 'general' },
+
   // รีไซเคิล
-  bottle: { id: 'bottle', icon: '🍾', name: 'ขวดพลาสติก', bin: 'recycle' },
+  bottle: { id: 'bottle', icon: '🧴', name: 'ขวดพลาสติก', bin: 'recycle' },
   paper: { id: 'paper', icon: '📰', name: 'กระดาษ', bin: 'recycle' },
   box: { id: 'box', icon: '📦', name: 'กล่องกระดาษ', bin: 'recycle' },
+  can: { id: 'can', icon: '🥫', name: 'กระป๋องน้ำอัดลม', bin: 'recycle' },
+  glass_jar: { id: 'glass_jar', icon: '🫙', name: 'ขวดโหลแก้ว', bin: 'recycle' },
+
   // ขยะเปียก
   banana: { id: 'banana', icon: '🍌', name: 'เปลือกกล้วย', bin: 'wet' },
   apple: { id: 'apple', icon: '🍎', name: 'แกนแอปเปิ้ล', bin: 'wet' },
   bone: { id: 'bone', icon: '🦴', name: 'ก้างปลา', bin: 'wet' },
+  watermelon: { id: 'watermelon', icon: '🍉', name: 'เปลือกแตงโม', bin: 'wet' },
+  leaf: { id: 'leaf', icon: '🍂', name: 'ใบไม้แห้ง', bin: 'wet' },
+
   // ขยะอันตราย
   battery: { id: 'battery', icon: '🔋', name: 'ถ่านไฟฉาย', bin: 'hazardous' },
   lightbulb: { id: 'lightbulb', icon: '💡', name: 'หลอดไฟ', bin: 'hazardous' },
-  spray: { id: 'spray', icon: '🧴', name: 'สเปรย์', bin: 'hazardous' },
+  spray: { id: 'spray', icon: '🧯', name: 'กระป๋องสเปรย์', bin: 'hazardous' },
+  medicine: { id: 'medicine', icon: '💊', name: 'ยาหมดอายุ', bin: 'hazardous' },
+  phone: { id: 'phone', icon: '📱', name: 'มือถือพัง', bin: 'hazardous' },
   
   // ขยะพิเศษ (ต้องคลิกเพื่อแยก)
   food_box: { 
@@ -77,7 +99,7 @@ const TRASH_DICTIONARY = {
     transformTo: 'clean_box', spawnItem: 'chicken_bone',
     actionText: 'แยกเศษอาหาร!'
   },
-  clean_box: { id: 'clean_box', icon: '🥡', name: 'กล่องพลาสติกเปล่า', bin: 'recycle' },
+  clean_box: { id: 'clean_box', icon: '🧊', name: 'กล่องพลาสติกใส', bin: 'recycle' },
   chicken_bone: { id: 'chicken_bone', icon: '🍗', name: 'เศษอาหาร', bin: 'wet' },
   
   uht: { 
@@ -94,12 +116,21 @@ const TRASH_DICTIONARY = {
     transformSteps: ['cup_no_ice', 'empty_cup'],
     actionTexts: ['เทน้ำทิ้ง!', 'แกะฝา!']
   },
-  cup_no_ice: { id: 'cup_no_ice', icon: '🥛', name: 'แก้วมีฝา', bin: 'none' }, 
-  empty_cup: { id: 'empty_cup', icon: '🫙', name: 'แก้วพลาสติกเปล่า', bin: 'recycle' },
+  cup_no_ice: { id: 'cup_no_ice', icon: '🧋', name: 'แก้วพลาสติกมีฝา', bin: 'none' }, 
+  empty_cup: { id: 'empty_cup', icon: '🥛', name: 'แก้วพลาสติกเปล่า', bin: 'recycle' },
+
+  mama_cup: {
+    id: 'mama_cup', icon: '🍜', name: 'ถ้วยมาม่า (มีซุป)', bin: 'none',
+    isComplex: true, clicksNeeded: 1,
+    transformTo: 'mama_cup_empty', spawnItem: 'food_scrap',
+    actionText: 'เทซุปทิ้ง!'
+  },
+  mama_cup_empty: { id: 'mama_cup_empty', icon: '🥣', name: 'ถ้วยมาม่าเปล่า', bin: 'general' },
+  food_scrap: { id: 'food_scrap', icon: '🥦', name: 'เศษผัก', bin: 'wet' },
 
   // บอส: ถุงดำยักษ์
   giant_bag: { 
-    id: 'giant_bag', icon: '🪨', name: 'ถุงดำปริศนา', bin: 'none', 
+    id: 'giant_bag', icon: '💣', name: 'ระเบิดขยะถุงดำ', bin: 'none', 
     isComplex: true, clicksNeeded: 3, 
     explodeInto: 3, 
     actionText: 'ฉีกถุง!'
@@ -110,17 +141,17 @@ const STAGES = [
   {
     level: 1,
     title: 'ฐานที่ 1: วิชาพื้นฐานลูกเสือ',
-    shortDesc: 'คัดแยกขยะทั่วไปและขยะรีไซเคิลรอบกองเกวียนแบบง่ายๆ',
-    desc: 'ลูกเสือสำรอง! มาฝึกแยกขยะทั่วไปและรีไซเคิลรอบค่ายกัน ขยะจะตกลงมาช้าๆ ไม่มีเวลาจำกัด ลากขยะไปใส่ถังให้ถูกต้อง!',
+    shortDesc: 'คัดแยกขยะทั่วไปและขยะรีไซเคิล ทำคะแนนให้มากที่สุดใน 30 วิ',
+    desc: 'ลูกเสือสำรอง! มาฝึกแยกขยะรอบค่ายกัน ขยะจะตกลงมาช้าๆ แข่งกับเวลา 30 วินาที ลากขยะไปใส่ถังให้ถูกต้องและกอบโกยคะแนนให้ได้มากที่สุด!',
     knowledge: [
-      '🟦 ถังสีน้ำเงิน (ขยะทั่วไป): ขยะที่ย่อยสลายยาก หรือเปื้อนอาหาร เช่น ถุงพลาสติก ห่อขนม ทิชชู่',
-      '🟨 ถังสีเหลือง (รีไซเคิล): ขยะที่นำกลับมาใช้ใหม่ได้ ควรทำให้สะอาดก่อนทิ้ง เช่น ขวดพลาสติก กระดาษ กล่องพัสดุ'
+      '🟦 ถังสีน้ำเงิน (ขยะทั่วไป): ขยะที่ย่อยสลายยาก หรือเปื้อนอาหาร เช่น ถุงพลาสติก ห่อขนม ทิชชู่ กล่องโฟม',
+      '🟨 ถังสีเหลือง (รีไซเคิล): ขยะที่นำกลับมาใช้ใหม่ได้ ควรทำให้สะอาดก่อนทิ้ง เช่น ขวดพลาสติก กระดาษ กระป๋อง'
     ],
     bins: ['general', 'recycle'],
-    availableTrash: ['plastic_bag', 'snack', 'bottle', 'paper'],
+    availableTrash: ['plastic_bag', 'snack', 'bottle', 'paper', 'foam_box', 'can'],
     fallSpeed: 1.5,
-    spawnRate: 2000,
-    timeLimit: null,
+    spawnRate: 1500,
+    timeLimit: 30,
     targetScore: 10,
     badge: '🏕️'
   },
@@ -128,16 +159,16 @@ const STAGES = [
     level: 2,
     title: 'ฐานที่ 2: โรงอาหารกลางค่าย',
     shortDesc: 'วิกฤตเศษอาหารล้นค่าย! ฝึกเทเศษอาหารและแยกภาชนะก่อนทิ้ง',
-    desc: 'เพิ่มถังขยะเปียก! มีเวลาจำกัด ขยะตกเร็วขึ้น คุณต้องคลิกที่ "กล่องข้าว" เพื่อแยกเศษอาหารออกก่อนทิ้ง!',
+    desc: 'เพิ่มถังขยะเปียก! ขยะตกเร็วขึ้น คุณต้องคลิกที่ "กล่องข้าว" เพื่อแยกเศษอาหารออกก่อนทิ้ง! แข่งกับเวลาเพื่อทำสถิติ',
     knowledge: [
-      '🟩 ถังสีเขียว (ขยะเปียก): ขยะที่เน่าเสียและย่อยสลายได้ นำไปทำปุ๋ยหมัก เช่น เปลือกผลไม้ เศษอาหาร ก้างปลา',
+      '🟩 ถังสีเขียว (ขยะเปียก): ขยะที่เน่าเสียและย่อยสลายได้ นำไปทำปุ๋ยหมัก เช่น เปลือกผลไม้ เศษอาหาร ใบไม้',
       '💡 กฎเหล็กโรงอาหาร: หากมีเศษอาหารในกล่องหรือถุง ต้อง "แยกเศษอาหาร" ทิ้งถังเขียวก่อน แล้วจึงนำภาชนะไปทิ้งถังที่ถูกต้อง'
     ],
     bins: ['general', 'recycle', 'wet'],
-    availableTrash: ['plastic_bag', 'bottle', 'banana', 'bone', 'food_box'],
+    availableTrash: ['plastic_bag', 'bottle', 'banana', 'bone', 'food_box', 'watermelon', 'used_mask'],
     fallSpeed: 1.8,
-    spawnRate: 1800,
-    timeLimit: 45,
+    spawnRate: 1200,
+    timeLimit: 40,
     targetScore: 15,
     badge: '🍲'
   },
@@ -147,14 +178,14 @@ const STAGES = [
     shortDesc: 'ระวังสารเคมีตกค้าง! คัดแยกขยะอันตรายและสารพิษให้ถูกต้อง',
     desc: 'ระวัง! ขยะอันตรายมาแล้ว หากทิ้งขยะอันตรายผิดถัง จะถูกหักแต้มความดีหนักมาก และหน้าจอจะมืดไปชั่วขณะ!',
     knowledge: [
-      '🟥 ถังสีแดง (ขยะอันตราย): ขยะที่มีสารเคมี มีพิษ ไวไฟ หรือระเบิดได้ เช่น ถ่านไฟฉาย หลอดไฟ กระป๋องสเปรย์',
+      '🟥 ถังสีแดง (ขยะอันตราย): ขยะที่มีสารเคมี มีพิษ ไวไฟ หรือระเบิดได้ เช่น ถ่านไฟฉาย หลอดไฟ มือถือพัง ยาหมดอายุ',
       '⚠️ คำเตือน: ห้ามทิ้งปะปนกับขยะอื่นเด็ดขาด เพราะสารเคมีจะปนเปื้อนสู่ดินและแหล่งน้ำ ทำอันตรายต่อสิ่งมีชีวิต!'
     ],
     bins: ['general', 'recycle', 'wet', 'hazardous'],
-    availableTrash: ['snack', 'paper', 'apple', 'battery', 'lightbulb', 'spray'],
+    availableTrash: ['snack', 'paper', 'apple', 'battery', 'lightbulb', 'spray', 'glass_jar', 'medicine', 'leaf'],
     fallSpeed: 2.2,
-    spawnRate: 1600,
-    timeLimit: 45,
+    spawnRate: 1000,
+    timeLimit: 40,
     targetScore: 15,
     badge: '🌲'
   },
@@ -162,18 +193,18 @@ const STAGES = [
     level: 4,
     title: 'ฐานที่ 4: ภารกิจผู้กำกับลูกเสือ',
     shortDesc: 'บททดสอบใหญ่! รัวคลิกฉีกถุงดำยักษ์ และชำแหละขยะสุดหิน!',
-    desc: 'ขยะแยกยากรวมตัว! รัวคลิก "ถุงดำปริศนา" ให้แตกกระจาย! กล่อง UHT ต้องคลิกพับ แก้วน้ำต้องแกะฝาก่อนทิ้ง มือต้องไว!',
+    desc: 'ขยะแยกยากรวมตัว! รัวคลิก "ระเบิดขยะถุงดำ" ให้แตกกระจาย! ถ้วยมาม่าและแก้วน้ำต้องจัดการก่อนทิ้ง มือต้องไวเพื่อโกยคะแนนสูงสุด!',
     knowledge: [
       '♻️ การจัดการขยะซับซ้อน: ขยะบางชนิดต้องจัดการก่อนทิ้งเพื่อลดพื้นที่และให้รีไซเคิลได้ง่ายขึ้น',
       '🧃 กล่อง UHT: ดื่มหมดแล้วต้อง ล้าง แกะหลอด และ "พับให้แบน"',
-      '🥤 แก้วน้ำแข็ง: ต้อง "เทน้ำและน้ำแข็งทิ้ง" ก่อน แล้วจึงแยกฝากับตัวแก้วนำไปทิ้งถังรีไซเคิล'
+      '🥤 ถ้วยมาม่า/แก้วน้ำ: ต้อง "เทน้ำซุป/น้ำแข็งทิ้ง" แยกเศษอาหาร แล้วจึงแยกภาชนะนำไปทิ้งถังให้ถูกต้อง'
     ],
     bins: ['general', 'recycle', 'wet', 'hazardous'],
-    availableTrash: ['snack', 'bottle', 'banana', 'battery', 'uht', 'iced_cup', 'food_box', 'giant_bag'],
+    availableTrash: ['snack', 'bottle', 'banana', 'battery', 'uht', 'iced_cup', 'food_box', 'giant_bag', 'mama_cup', 'phone'],
     fallSpeed: 1.0,
-    spawnRate: 2800, 
-    timeLimit: 60,
-    targetScore: 25, 
+    spawnRate: 1500, 
+    timeLimit: 50,
+    targetScore: 20, 
     badge: '🔥'
   }
 ];
@@ -189,13 +220,38 @@ export default function App() {
   const [isDarkened, setIsDarkened] = useState(false);
   const [clickedItemId, setClickedItemId] = useState(null); 
   
+  // ระบบบันทึกชื่อและคะแนน
+  const [playerName, setPlayerName] = useState('');
+  const [stageScores, setStageScores] = useState([0, 0, 0, 0]);
+  const cumulativeScore = stageScores.reduce((a, b) => a + b, 0);
+
   const draggingItemRef = useRef(null);
   const playAreaRef = useRef(null);
+  const scoreRef = useRef(0);
 
   const stageConfig = STAGES[currentStageIdx];
 
-  const handleStartMission = () => setGameState('stage_select');
-  const handleSelectStage = (idx) => { if (idx <= maxUnlockedIdx) { setCurrentStageIdx(idx); setGameState('stage_intro'); } };
+  useEffect(() => {
+    scoreRef.current = score;
+  }, [score]);
+
+  // เปลี่ยนเส้นทางจาก Menu ไปหน้าใส่ชื่อแทน
+  const handleStartMission = () => setGameState('name_input');
+  
+  // บันทึกชื่อแล้วไปหน้าเลือกด่าน
+  const handleNameSubmit = (e) => {
+    e.preventDefault();
+    if(playerName.trim()) {
+      setGameState('stage_select');
+    }
+  };
+
+  const handleSelectStage = (idx) => { 
+    if (idx <= maxUnlockedIdx) { 
+      setCurrentStageIdx(idx); 
+      setGameState('stage_intro'); 
+    } 
+  };
   
   const startStage = () => {
     setItems([]);
@@ -214,8 +270,17 @@ export default function App() {
       setCurrentStageIdx(nextIdx);
       setGameState('stage_intro');
     } else {
-      setGameState('game_over');
+      setGameState('game_finished');
     }
+  };
+
+  // เริ่มเกมใหม่ทั้งหมด เคลียร์คะแนนและชื่อ
+  const resetGame = () => {
+    setStageScores([0, 0, 0, 0]);
+    setMaxUnlockedIdx(0);
+    setCurrentStageIdx(0);
+    setPlayerName('');
+    setGameState('menu');
   };
 
   useEffect(() => {
@@ -227,8 +292,20 @@ export default function App() {
         setTimeLeft(prev => {
           if (prev <= 1) {
             clearInterval(timerInterval);
-            if (!stageConfig.targetScore || score >= stageConfig.targetScore) setGameState('stage_clear');
-            else setGameState('game_over');
+            // ตรวจสอบคะแนนเมื่อหมดเวลา
+            if (scoreRef.current >= stageConfig.targetScore) {
+              setStageScores(prevScores => {
+                const newScores = [...prevScores];
+                // บันทึกเฉพาะคะแนนที่ดีที่สุดในด่านนั้นๆ เพื่อรวมเป็นคะแนนสูงสุด
+                if (scoreRef.current > newScores[currentStageIdx]) {
+                  newScores[currentStageIdx] = scoreRef.current;
+                }
+                return newScores;
+              });
+              setGameState('stage_clear');
+            } else {
+              setGameState('game_over');
+            }
             return 0;
           }
           return prev - 1;
@@ -260,7 +337,7 @@ export default function App() {
       clearInterval(timerInterval);
       clearInterval(fallLoop);
     };
-  }, [gameState, stageConfig, score]);
+  }, [gameState, stageConfig, currentStageIdx]);
 
   useEffect(() => {
     if (gameState !== 'playing') return;
@@ -410,25 +487,17 @@ export default function App() {
     }
 
     if (item.bin === targetBin) {
-      const newScore = score + 1;
-      setScore(newScore);
+      setScore(s => s + 1);
       showFeedback(item.x, item.y - 30, "+1 ทำดีมาก!", "text-green-400 font-bold");
-      
       setItems(prev => prev.filter(i => i.instanceId !== item.instanceId));
-
-      if (stageConfig.targetScore && !stageConfig.timeLimit && newScore >= stageConfig.targetScore) {
-        const nextIdx = currentStageIdx + 1;
-        if (nextIdx < STAGES.length && nextIdx > maxUnlockedIdx) setMaxUnlockedIdx(nextIdx);
-        setGameState('stage_clear');
-      }
     } else {
       if (currentStageIdx >= 2 && (item.bin === 'hazardous' || targetBin === 'hazardous')) {
-        setScore(s => s - 5);
+        setScore(s => Math.max(0, s - 5));
         showFeedback(item.x, item.y, "อันตราย!! -5", "text-red-500 font-black text-4xl drop-shadow-2xl !z-[200]");
         setIsDarkened(true);
         setTimeout(() => setIsDarkened(false), 2000);
       } else {
-        setScore(s => s - 1);
+        setScore(s => Math.max(0, s - 1));
         showFeedback(item.x, item.y - 30, "ผิดถังนะลูกเสือ!", "text-red-400 font-bold");
       }
       
@@ -443,14 +512,15 @@ export default function App() {
   };
 
   const renderMenu = () => (
-    <div className="flex flex-col items-center justify-center h-full space-y-8 bg-gradient-to-b from-green-900 to-green-700 p-6 text-center">
+    <div className="flex flex-col items-center justify-center h-full space-y-6 bg-gradient-to-b from-green-900 to-green-700 p-6 text-center">
       <div className="bg-[#fdf6e3] p-6 rounded-3xl shadow-xl border-4 border-[#8b5a2b] max-w-sm w-full">
         <div className="text-6xl mb-4">🏕️⚜️</div>
         <h1 className="font-heading text-4xl font-extrabold text-[#5c3a21] mb-2 tracking-wide">ค่ายลูกเสือรักษ์โลก</h1>
         <p className="font-body text-sm text-gray-500 mb-6 font-bold">สมาคมลูกเสือเกียรติยศแห่งประเทศไทย</p>
-        <p className="font-body text-md text-[#8b5a2b] mb-6 font-medium leading-relaxed">
+        <p className="font-body text-md text-[#8b5a2b] mb-4 font-medium leading-relaxed">
           "เสียชีพอย่าเสียเกียรติ และอย่าลืมคัดแยกขยะเพื่อรักษาสิ่งแวดล้อมรอบค่าย!"
         </p>
+        
         <button 
           onClick={handleStartMission}
           className="font-heading flex items-center justify-center w-full space-x-2 bg-[#8b5a2b] hover:bg-[#6b4423] text-white font-bold py-4 px-8 rounded-full text-2xl transition transform hover:scale-105 shadow-lg border-b-4 border-[#4a2e17] tracking-wider"
@@ -461,14 +531,44 @@ export default function App() {
     </div>
   );
 
+  // หน้าจอสำหรับกรอกชื่อผู้เล่นก่อนเข้าเล่น
+  const renderNameInput = () => (
+    <div className="flex flex-col items-center justify-center h-full p-6 bg-gradient-to-b from-[#4a2e17] to-green-900 text-center font-body">
+      <div className="bg-[#fdf6e3] p-8 rounded-3xl shadow-2xl border-4 border-[#8b5a2b] w-full max-w-sm">
+        <div className="text-6xl mb-4">📝</div>
+        <h2 className="font-heading text-3xl font-extrabold text-[#5c3a21] mb-2">ลงทะเบียนลูกเสือ</h2>
+        <p className="text-sm text-gray-600 mb-6 font-bold">กรุณากรอกชื่อของคุณเพื่อเริ่มภารกิจ</p>
+        
+        <form onSubmit={handleNameSubmit} className="flex flex-col gap-4">
+          <input
+            type="text"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+            placeholder="ใส่ชื่อผู้เล่นที่นี่"
+            maxLength={15}
+            required
+            className="w-full text-center px-4 py-3 rounded-xl border-2 border-[#8b5a2b] text-[#5c3a21] font-bold text-xl focus:outline-none focus:ring-4 focus:ring-yellow-400 bg-white"
+          />
+          <button type="submit" className="font-heading w-full flex items-center justify-center space-x-2 bg-[#8b5a2b] hover:bg-[#6b4423] text-white font-bold py-3 px-8 rounded-xl text-xl transition transform hover:scale-105 shadow-lg border-b-4 border-[#4a2e17]">
+            <span>ยืนยันและไปต่อ</span> <ArrowRight size={20} />
+          </button>
+        </form>
+
+        <button onClick={() => setGameState('menu')} className="mt-6 text-sm font-bold text-gray-500 hover:text-[#5c3a21] underline">
+          กลับหน้าหลัก
+        </button>
+      </div>
+    </div>
+  );
+
   const renderStageSelect = () => (
     <div className="flex flex-col h-full bg-[#e8eedd] overflow-y-auto p-6 font-body custom-scrollbar">
       <div className="text-center mb-6">
         <span className="font-heading inline-flex items-center gap-1 bg-[#8b5a2b] text-[#fdf6e3] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
-          <MapIcon size={14} /> แผนที่การเดินทาง
+          <MapIcon size={14} /> แผนที่การเดินทางของลูกเสือ {playerName}
         </span>
         <h2 className="font-heading text-3xl font-black text-[#5c3a21] mt-2">เลือกฐานฝึกกองร้อย</h2>
-        <p className="text-sm text-gray-600">เดินทางไกลผ่าน 4 ฐานฝึกเพื่อทำแต้มความดีสูงสุด</p>
+        <p className="text-sm text-gray-600 font-bold mt-1">คะแนนสะสม: <span className="text-green-700 text-lg">{cumulativeScore}</span></p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 w-full flex-1">
@@ -505,11 +605,7 @@ export default function App() {
 
               <div className="mt-4 pt-3 border-t border-dashed border-[#8b5a2b]/20 flex justify-between text-xs font-bold text-gray-600">
                 <span className="flex items-center gap-1">🎯 ผ่านที่: {stage.targetScore} คะแนน</span>
-                {stage.timeLimit ? (
-                  <span className="flex items-center gap-1 text-red-600">⏱️ เวลา: {stage.timeLimit} วิ</span>
-                ) : (
-                  <span className="text-green-600">⏱️ ไม่จำกัดเวลา</span>
-                )}
+                <span className="flex items-center gap-1 text-red-600">⏱️ เวลา: {stage.timeLimit} วิ</span>
               </div>
             </div>
           );
@@ -517,8 +613,8 @@ export default function App() {
       </div>
 
       <div className="mt-8 mb-4 text-center">
-        <button onClick={() => setGameState('menu')} className="font-heading text-xs font-bold text-[#8b5a2b] hover:underline bg-[#fdf6e3] border-2 border-[#8b5a2b] px-4 py-2 rounded-full shadow-sm">
-          กลับหน้าหลัก ⛺
+        <button onClick={resetGame} className="font-heading text-xs font-bold text-red-600 hover:underline bg-[#fdf6e3] border-2 border-red-600 px-4 py-2 rounded-full shadow-sm">
+          ออกจากการฝึก (เริ่มใหม่)
         </button>
       </div>
     </div>
@@ -581,7 +677,8 @@ export default function App() {
           <div className="text-5xl">🔥</div>
         </div>
         <h2 className="font-heading text-4xl font-bold mb-2 text-[#f0d58b]">ผ่านฐานสำเร็จ!</h2>
-        <p className="text-2xl mb-8">แต้มความดีที่คุณทำได้: <span className="text-[#f0d58b] font-bold">{score}</span></p>
+        <p className="text-xl mb-1">คะแนนด่านนี้: <span className="text-white font-bold">{score}</span></p>
+        <p className="text-lg mb-8 text-green-200">คะแนนรวมสะสม: <span className="text-yellow-400 font-black text-2xl">{cumulativeScore}</span></p>
         
         <div className="flex flex-col gap-3 w-full max-w-sm">
           <button onClick={nextStage} className="font-heading w-full flex items-center justify-center space-x-2 bg-[#fdf6e3] text-green-900 font-bold py-3 px-6 rounded-full text-lg transition transform hover:scale-105 shadow-xl border-b-4 border-[#c7ba9f]">
@@ -596,24 +693,15 @@ export default function App() {
   };
 
   const renderGameOver = () => {
-    const isFailed = stageConfig.targetScore && score < stageConfig.targetScore;
-
     return (
       <div className="flex flex-col items-center justify-center h-full p-6 bg-gradient-to-b from-gray-900 to-[#4a2e17] text-white text-center font-body">
-        <div className="text-7xl mb-4">{isFailed ? '😢❌' : '🏕️🌕'}</div>
+        <div className="text-7xl mb-4">😢❌</div>
         <h2 className="font-heading text-4xl font-extrabold mb-4 text-[#f0d58b]">
-          {isFailed ? 'แต้มความดีไม่พอ!' : 'จบภารกิจฐานฝึก!'}
+          แต้มความดีไม่พอ!
         </h2>
-        
-        {isFailed ? (
-          <p className="text-base mb-6 text-gray-300 max-w-sm leading-relaxed">
-            คุณคัดแยกขยะทำแต้มความดีได้ <span className="text-red-400 font-bold">{score}</span> คะแนน แต่เป้าหมายฐานนี้คือ <span className="text-green-400 font-bold">{stageConfig.targetScore}</span> คะแนน กลับไปฝึกฝนและแก้ตัวใหม่อีกครั้งนะลูกเสือ!
-          </p>
-        ) : (
-          <p className="text-lg mb-6 text-gray-300">
-            ค่ายของเราสะอาดเป็นระเบียบขึ้นมากเพราะความสามัคคีของคุณ!
-          </p>
-        )}
+        <p className="text-base mb-6 text-gray-300 max-w-sm leading-relaxed">
+          คุณทำคะแนนได้ <span className="text-red-400 font-bold">{score}</span> คะแนน แต่เป้าหมายคือ <span className="text-green-400 font-bold">{stageConfig.targetScore}</span> คะแนน เร่งมือและพยายามใหม่อีกครั้งนะลูกเสือ!
+        </p>
 
         <div className="flex flex-col gap-3 w-full max-w-sm justify-center">
           <button onClick={startStage} className="font-heading w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full text-lg transition transform hover:scale-105 shadow-xl border-b-4 border-green-800">
@@ -627,31 +715,44 @@ export default function App() {
     );
   };
 
+  // หน้าจอสรุปผลใหม่ ที่แสดงเฉพาะชื่อและคะแนนที่ผู้เล่นทำได้
+  const renderGameFinished = () => (
+    <div className="flex flex-col items-center justify-center h-full p-6 bg-gradient-to-b from-green-900 to-[#4a2e17] text-white text-center font-body">
+      <div className="text-7xl mb-4 animate-bounce"><Trophy size={80} className="text-yellow-400 mx-auto drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]" /></div>
+      <h2 className="font-heading text-4xl font-extrabold mb-2 text-[#f0d58b]">จบภารกิจสมบูรณ์!</h2>
+      <p className="text-lg mb-6 text-green-100">
+        ยอดเยี่ยมมาก ลูกเสือ <span className="font-bold text-yellow-400 text-xl">{playerName}</span>!
+      </p>
+      
+      <div className="bg-white/10 p-6 rounded-3xl border-2 border-yellow-500/50 mb-8 w-full max-w-sm">
+        <p className="text-sm text-yellow-200 mb-1">คะแนนรวมความดีของคุณ</p>
+        <p className="font-heading text-6xl font-black text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]">{cumulativeScore}</p>
+      </div>
+
+      <div className="w-full max-w-sm flex flex-col gap-4">
+        <button onClick={resetGame} className="font-heading w-full flex items-center justify-center bg-yellow-500 hover:bg-yellow-600 text-yellow-900 font-black py-4 px-8 rounded-full text-xl transition transform hover:scale-105 shadow-xl border-b-4 border-yellow-700">
+          เล่นใหม่อีกครั้ง (ให้เพื่อนเล่น)
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Kanit:wght@300;400;500;600;700&display=swap');
         
-        body {
-          margin: 0;
-          background-color: #1a2e15; /* สีพื้นหลังเมื่อหน้าเว็บโหลด */
-        }
-
+        body { margin: 0; background-color: #1a2e15; }
         .font-heading { font-family: 'Chakra Petch', sans-serif; }
         .font-body { font-family: 'Kanit', sans-serif; }
-        
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(139, 90, 43, 0.5); border-radius: 10px; }
       `}</style>
 
-      {/* Wrapper ตัวนอกสำหรับ Desktop จะแสดงพื้นหลังสวยงามและลวดลาย */}
       <div className="min-h-[100dvh] w-full bg-gradient-to-br from-[#3a522d] via-[#2a3b24] to-[#151f11] flex items-center justify-center sm:p-6 relative">
-        
-        {/* ลวดลายตกแต่งบนพื้นหลัง (แสดงเฉพาะบนคอมพิวเตอร์) */}
         <div className="absolute inset-0 opacity-10 pointer-events-none hidden sm:block" style={{ backgroundImage: 'radial-gradient(#a3b899 2px, transparent 2px)', backgroundSize: '30px 30px' }}></div>
 
-        {/* กล่องเกมหลัก (จำลองกรอบโทรศัพท์มือถือบนคอม) */}
         <div 
           className="relative w-full h-[100dvh] sm:h-[800px] sm:max-h-[90vh] max-w-md mx-auto bg-[#e8eedd] overflow-hidden select-none touch-none sm:rounded-[2.5rem] sm:shadow-[0_0_40px_rgba(0,0,0,0.5)] sm:border-[8px] border-[#4a2e17] flex flex-col"
           onPointerMove={handlePointerMove}
@@ -661,16 +762,18 @@ export default function App() {
           <div className={`absolute inset-0 bg-black pointer-events-none transition-opacity duration-300 z-40 ${isDarkened ? 'opacity-90' : 'opacity-0'}`} />
 
           {gameState === 'menu' && renderMenu()}
+          {gameState === 'name_input' && renderNameInput()}
           {gameState === 'stage_select' && renderStageSelect()}
           {gameState === 'stage_intro' && renderStageIntro()}
           {gameState === 'stage_clear' && renderStageClear()}
           {gameState === 'game_over' && renderGameOver()}
+          {gameState === 'game_finished' && renderGameFinished()}
 
           {gameState === 'playing' && (
             <div className="absolute inset-0 flex flex-col font-body">
               <div className="bg-[#5c3a21] px-4 py-3 shadow-[0_4px_10px_rgba(0,0,0,0.3)] flex justify-between items-center z-10 mx-2 mt-2 rounded-2xl border-2 border-[#8b5a2b]">
                 <div className="flex flex-col">
-                  <span className="font-heading text-xs font-bold text-[#e6c280] uppercase tracking-wider">ฐานที่ {stageConfig.level}</span>
+                  <span className="font-heading text-xs font-bold text-[#e6c280] uppercase tracking-wider">ฐานที่ {stageConfig.level} - {playerName}</span>
                   <span className="font-heading text-lg font-extrabold text-white leading-tight">{stageConfig.title}</span>
                 </div>
                 <div className="flex space-x-2 items-center">
