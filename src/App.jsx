@@ -516,7 +516,7 @@ export default function App() {
       <div className="bg-[#fdf6e3] p-6 rounded-3xl shadow-xl border-4 border-[#8b5a2b] max-w-sm w-full">
         <div className="text-6xl mb-4">🏕️⚜️</div>
         <h1 className="font-heading text-4xl font-extrabold text-[#5c3a21] mb-2 tracking-wide">ค่ายลูกเสือรักษ์โลก</h1>
-        <p className="font-body text-sm text-gray-500 mb-6 font-bold">สมาคมลูกเสือเกียรติยศแห่งประเทศไทย</p>
+        <p className="font-body text-sm text-gray-500 mb-6 font-bold">โรงเรียนมัธยมบ้านทำเนียบ</p>
         <p className="font-body text-md text-[#8b5a2b] mb-4 font-medium leading-relaxed">
           "เสียชีพอย่าเสียเกียรติ และอย่าลืมคัดแยกขยะเพื่อรักษาสิ่งแวดล้อมรอบค่าย!"
         </p>
