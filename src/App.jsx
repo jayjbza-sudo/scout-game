@@ -633,9 +633,8 @@ export default function App() {
         @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Kanit:wght@300;400;500;600;700&display=swap');
         
         body {
-          /* ปรับ Background สีเข้มให้กลืนไปกับจอคอมพิวเตอร์ */
-          background-color: #2a3b24; 
           margin: 0;
+          background-color: #1a2e15; /* สีพื้นหลังเมื่อหน้าเว็บโหลด */
         }
 
         .font-heading { font-family: 'Chakra Petch', sans-serif; }
@@ -646,113 +645,116 @@ export default function App() {
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(139, 90, 43, 0.5); border-radius: 10px; }
       `}</style>
 
-      {/* นี่คือส่วนสำคัญที่แก้ไขให้หน้าจอเป็น Mobile First:
-        - fixed inset-0 = ยึดติดหน้าจอทั้งหมด
-        - h-[100dvh] = ความสูงครอบคลุมเต็มจอเป๊ะๆ รวมถึงเบราว์เซอร์มือถือ
-        - max-w-md mx-auto = จำกัดความกว้างให้เท่ากับมือถือ และให้อยู่ตรงกลางบน PC
-      */}
-      <div 
-        className="fixed inset-0 w-full h-[100dvh] max-w-md mx-auto bg-[#e8eedd] overflow-hidden select-none touch-none sm:shadow-2xl sm:border-x-4 border-[#8b5a2b]"
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerUp}
-      >
-        <div className={`absolute inset-0 bg-black pointer-events-none transition-opacity duration-300 z-40 ${isDarkened ? 'opacity-90' : 'opacity-0'}`} />
+      {/* Wrapper ตัวนอกสำหรับ Desktop จะแสดงพื้นหลังสวยงามและลวดลาย */}
+      <div className="min-h-[100dvh] w-full bg-gradient-to-br from-[#3a522d] via-[#2a3b24] to-[#151f11] flex items-center justify-center sm:p-6 relative">
+        
+        {/* ลวดลายตกแต่งบนพื้นหลัง (แสดงเฉพาะบนคอมพิวเตอร์) */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none hidden sm:block" style={{ backgroundImage: 'radial-gradient(#a3b899 2px, transparent 2px)', backgroundSize: '30px 30px' }}></div>
 
-        {gameState === 'menu' && renderMenu()}
-        {gameState === 'stage_select' && renderStageSelect()}
-        {gameState === 'stage_intro' && renderStageIntro()}
-        {gameState === 'stage_clear' && renderStageClear()}
-        {gameState === 'game_over' && renderGameOver()}
+        {/* กล่องเกมหลัก (จำลองกรอบโทรศัพท์มือถือบนคอม) */}
+        <div 
+          className="relative w-full h-[100dvh] sm:h-[800px] sm:max-h-[90vh] max-w-md mx-auto bg-[#e8eedd] overflow-hidden select-none touch-none sm:rounded-[2.5rem] sm:shadow-[0_0_40px_rgba(0,0,0,0.5)] sm:border-[8px] border-[#4a2e17] flex flex-col"
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
+        >
+          <div className={`absolute inset-0 bg-black pointer-events-none transition-opacity duration-300 z-40 ${isDarkened ? 'opacity-90' : 'opacity-0'}`} />
 
-        {gameState === 'playing' && (
-          <div className="absolute inset-0 flex flex-col font-body">
-            <div className="bg-[#5c3a21] px-4 py-3 shadow-[0_4px_10px_rgba(0,0,0,0.3)] flex justify-between items-center z-10 mx-2 mt-2 rounded-2xl border-2 border-[#8b5a2b]">
-              <div className="flex flex-col">
-                <span className="font-heading text-xs font-bold text-[#e6c280] uppercase tracking-wider">ฐานที่ {stageConfig.level}</span>
-                <span className="font-heading text-lg font-extrabold text-white leading-tight">{stageConfig.title}</span>
-              </div>
-              <div className="flex space-x-2 items-center">
-                <div className="flex items-center space-x-1 bg-[#8b5a2b] px-2 py-1 rounded-full shadow-inner">
-                  <Target size={16} className="text-[#fdf6e3]"/>
-                  <span className="font-heading font-bold text-[#fdf6e3] text-sm">{score} {stageConfig.targetScore ? `/ ${stageConfig.targetScore}` : ''}</span>
+          {gameState === 'menu' && renderMenu()}
+          {gameState === 'stage_select' && renderStageSelect()}
+          {gameState === 'stage_intro' && renderStageIntro()}
+          {gameState === 'stage_clear' && renderStageClear()}
+          {gameState === 'game_over' && renderGameOver()}
+
+          {gameState === 'playing' && (
+            <div className="absolute inset-0 flex flex-col font-body">
+              <div className="bg-[#5c3a21] px-4 py-3 shadow-[0_4px_10px_rgba(0,0,0,0.3)] flex justify-between items-center z-10 mx-2 mt-2 rounded-2xl border-2 border-[#8b5a2b]">
+                <div className="flex flex-col">
+                  <span className="font-heading text-xs font-bold text-[#e6c280] uppercase tracking-wider">ฐานที่ {stageConfig.level}</span>
+                  <span className="font-heading text-lg font-extrabold text-white leading-tight">{stageConfig.title}</span>
                 </div>
-                {stageConfig.timeLimit && (
-                  <div className={`flex items-center space-x-1 px-2 py-1 rounded-full shadow-inner ${timeLeft <= 10 ? 'bg-red-500 text-white animate-pulse' : 'bg-[#e6c280] text-[#5c3a21]'}`}>
-                    <Clock size={16} />
-                    <span className="font-heading font-bold text-sm">{timeLeft}s</span>
+                <div className="flex space-x-2 items-center">
+                  <div className="flex items-center space-x-1 bg-[#8b5a2b] px-2 py-1 rounded-full shadow-inner">
+                    <Target size={16} className="text-[#fdf6e3]"/>
+                    <span className="font-heading font-bold text-[#fdf6e3] text-sm">{score} {stageConfig.targetScore ? `/ ${stageConfig.targetScore}` : ''}</span>
                   </div>
-                )}
-              </div>
-            </div>
-
-            <div className="flex-1 relative w-full" ref={playAreaRef}>
-              <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#4b6b3e 2px, transparent 2px)', backgroundSize: '30px 30px' }}></div>
-              
-              {items.map(item => {
-                const isGiantBag = item.id === 'giant_bag';
-                const isDragging = draggingItemRef.current?.id === item.instanceId; 
-                
-                const scaleClass = isGiantBag ? 'scale-125 hover:scale-150' : 'scale-100'; 
-                const shakeClass = clickedItemId === item.instanceId ? 'scale-90 opacity-80' : ''; 
-                const alertClass = item.isComplex && item.currentClicks < item.clicksNeeded && !isGiantBag ? 'animate-bounce' : '';
-                
-                return (
-                  <div
-                    key={item.instanceId}
-                    id={`item-${item.instanceId}`}
-                    onPointerDown={(e) => handlePointerDown(e, item)}
-                    className={`absolute flex flex-col items-center justify-center cursor-grab active:cursor-grabbing transform -translate-x-1/2 -translate-y-1/2 transition-transform duration-150 ${scaleClass} ${shakeClass} ${alertClass} ${isDragging ? 'z-50' : 'z-20'}`}
-                    style={{ left: item.x, top: item.y, width: '90px', height: '100px' }}
-                  >
-                    <div className={`rounded-full p-2.5 shadow-lg border-2 pointer-events-none text-4xl flex items-center justify-center w-14 h-14 ${isGiantBag ? 'bg-gray-800 border-gray-900 animate-pulse' : 'bg-white/95 border-gray-200'}`}>
-                      {item.icon}
+                  {stageConfig.timeLimit && (
+                    <div className={`flex items-center space-x-1 px-2 py-1 rounded-full shadow-inner ${timeLeft <= 10 ? 'bg-red-500 text-white animate-pulse' : 'bg-[#e6c280] text-[#5c3a21]'}`}>
+                      <Clock size={16} />
+                      <span className="font-heading font-bold text-sm">{timeLeft}s</span>
                     </div>
-                    
-                    <span className={`text-[10px] font-bold border px-1.5 py-0.5 rounded-md mt-1 shadow-sm whitespace-nowrap pointer-events-none max-w-[85px] truncate text-center ${isGiantBag ? 'bg-black text-red-400 border-red-500 font-heading' : 'bg-[#fdf6e3]/95 text-[#5c3a21] border-[#8b5a2b]'}`}>
-                      {item.name}
-                      {isGiantBag && ` (${item.clicksNeeded - item.currentClicks})`}
-                    </span>
+                  )}
+                </div>
+              </div>
 
-                    {item.isComplex && item.currentClicks < item.clicksNeeded && (
-                      <div className={`absolute top-0 right-2 rounded-full p-0.5 border-2 shadow-sm pointer-events-none animate-pulse ${isGiantBag ? 'bg-red-500 border-white text-white' : 'bg-yellow-400 border-[#5c3a21]'}`}>
-                        <span className="text-[10px]">{isGiantBag ? '⚔️' : '👆'}</span>
+              <div className="flex-1 relative w-full" ref={playAreaRef}>
+                <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#4b6b3e 2px, transparent 2px)', backgroundSize: '30px 30px' }}></div>
+                
+                {items.map(item => {
+                  const isGiantBag = item.id === 'giant_bag';
+                  const isDragging = draggingItemRef.current?.id === item.instanceId; 
+                  
+                  const scaleClass = isGiantBag ? 'scale-125 hover:scale-150' : 'scale-100'; 
+                  const shakeClass = clickedItemId === item.instanceId ? 'scale-90 opacity-80' : ''; 
+                  const alertClass = item.isComplex && item.currentClicks < item.clicksNeeded && !isGiantBag ? 'animate-bounce' : '';
+                  
+                  return (
+                    <div
+                      key={item.instanceId}
+                      id={`item-${item.instanceId}`}
+                      onPointerDown={(e) => handlePointerDown(e, item)}
+                      className={`absolute flex flex-col items-center justify-center cursor-grab active:cursor-grabbing transform -translate-x-1/2 -translate-y-1/2 transition-transform duration-150 ${scaleClass} ${shakeClass} ${alertClass} ${isDragging ? 'z-50' : 'z-20'}`}
+                      style={{ left: item.x, top: item.y, width: '90px', height: '100px' }}
+                    >
+                      <div className={`rounded-full p-2.5 shadow-lg border-2 pointer-events-none text-4xl flex items-center justify-center w-14 h-14 ${isGiantBag ? 'bg-gray-800 border-gray-900 animate-pulse' : 'bg-white/95 border-gray-200'}`}>
+                        {item.icon}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+                      
+                      <span className={`text-[10px] font-bold border px-1.5 py-0.5 rounded-md mt-1 shadow-sm whitespace-nowrap pointer-events-none max-w-[85px] truncate text-center ${isGiantBag ? 'bg-black text-red-400 border-red-500 font-heading' : 'bg-[#fdf6e3]/95 text-[#5c3a21] border-[#8b5a2b]'}`}>
+                        {item.name}
+                        {isGiantBag && ` (${item.clicksNeeded - item.currentClicks})`}
+                      </span>
 
-              {feedbacks.map(f => (
-                <div
-                  key={f.id}
-                  className={`absolute font-heading font-bold text-xl pointer-events-none drop-shadow-md animate-[ping_1s_ease-out_forwards] ${f.colorClass}`}
-                  style={{ left: f.x, top: f.y, transform: 'translate(-50%, -50%)', zIndex: 40, textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
-                >
-                  {f.text}
-                </div>
-              ))}
-            </div>
-
-            <button onClick={handleBackToSelect} className="font-heading absolute bottom-32 right-4 bg-[#fdf6e3]/90 hover:bg-[#fdf6e3] text-[#5c3a21] border border-[#8b5a2b] font-bold text-xs px-3 py-1.5 rounded-full shadow-lg transition z-10 tracking-wider">
-              🏳️ ยอมแพ้
-            </button>
-
-            <div className="h-28 bg-[#a3805c] flex justify-around items-end pb-3 border-t-8 border-[#5c3a21] shadow-[0_-10px_20px_rgba(0,0,0,0.2)] z-10 px-1 relative">
-              {stageConfig.bins.map(binId => {
-                const bin = BIN_TYPES.find(b => b.id === binId);
-                return (
-                  <div key={binId} data-bin-type={binId} className="flex flex-col items-center w-1/4 max-w-[75px] z-10">
-                    <div className={`w-full aspect-[3/4] rounded-b-xl rounded-t-sm shadow-inner flex items-center justify-center text-3xl border-t-8 border-black/30 ${bin.color} transition-transform transform hover:scale-110`}>
-                      <span className="pointer-events-none drop-shadow-md">{bin.icon}</span>
+                      {item.isComplex && item.currentClicks < item.clicksNeeded && (
+                        <div className={`absolute top-0 right-2 rounded-full p-0.5 border-2 shadow-sm pointer-events-none animate-pulse ${isGiantBag ? 'bg-red-500 border-white text-white' : 'bg-yellow-400 border-[#5c3a21]'}`}>
+                          <span className="text-[10px]">{isGiantBag ? '⚔️' : '👆'}</span>
+                        </div>
+                      )}
                     </div>
-                    <span className="font-heading text-[10px] sm:text-xs font-bold mt-1.5 text-[#4a2e17] bg-[#fdf6e3] px-1.5 py-0.5 rounded-md shadow-sm border border-[#8b5a2b] tracking-wide whitespace-nowrap">{bin.name}</span>
+                  );
+                })}
+
+                {feedbacks.map(f => (
+                  <div
+                    key={f.id}
+                    className={`absolute font-heading font-bold text-xl pointer-events-none drop-shadow-md animate-[ping_1s_ease-out_forwards] ${f.colorClass}`}
+                    style={{ left: f.x, top: f.y, transform: 'translate(-50%, -50%)', zIndex: 40, textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
+                  >
+                    {f.text}
                   </div>
-                );
-              })}
+                ))}
+              </div>
+
+              <button onClick={handleBackToSelect} className="font-heading absolute bottom-32 right-4 bg-[#fdf6e3]/90 hover:bg-[#fdf6e3] text-[#5c3a21] border border-[#8b5a2b] font-bold text-xs px-3 py-1.5 rounded-full shadow-lg transition z-10 tracking-wider">
+                🏳️ ยอมแพ้
+              </button>
+
+              <div className="h-28 bg-[#a3805c] flex justify-around items-end pb-3 border-t-8 border-[#5c3a21] shadow-[0_-10px_20px_rgba(0,0,0,0.2)] z-10 px-1 relative">
+                {stageConfig.bins.map(binId => {
+                  const bin = BIN_TYPES.find(b => b.id === binId);
+                  return (
+                    <div key={binId} data-bin-type={binId} className="flex flex-col items-center w-1/4 max-w-[75px] z-10">
+                      <div className={`w-full aspect-[3/4] rounded-b-xl rounded-t-sm shadow-inner flex items-center justify-center text-3xl border-t-8 border-black/30 ${bin.color} transition-transform transform hover:scale-110`}>
+                        <span className="pointer-events-none drop-shadow-md">{bin.icon}</span>
+                      </div>
+                      <span className="font-heading text-[10px] sm:text-xs font-bold mt-1.5 text-[#4a2e17] bg-[#fdf6e3] px-1.5 py-0.5 rounded-md shadow-sm border border-[#8b5a2b] tracking-wide whitespace-nowrap">{bin.name}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </>
   );
