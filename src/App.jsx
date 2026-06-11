@@ -157,7 +157,7 @@ const STAGES = [
   },
   {
     level: 2,
-    title: 'ฐานที่ 2: โรงอาหารกลางค่าย',
+    title: 'ฐานที่ 2: อาหารล้นค่าย',
     shortDesc: 'วิกฤตเศษอาหารล้นค่าย! ฝึกเทเศษอาหารและแยกภาชนะก่อนทิ้ง',
     desc: 'เพิ่มถังขยะเปียก! ขยะตกเร็วขึ้น คุณต้องคลิกที่ "กล่องข้าว" เพื่อแยกเศษอาหารออกก่อนทิ้ง! แข่งกับเวลาเพื่อทำสถิติ',
     knowledge: [
@@ -174,7 +174,7 @@ const STAGES = [
   },
   {
     level: 3,
-    title: 'ฐานที่ 3: ระวังภัยในป่ากว้าง',
+    title: 'ฐานที่ 3: ขยะอันตราย',
     shortDesc: 'ระวังสารเคมีตกค้าง! คัดแยกขยะอันตรายและสารพิษให้ถูกต้อง',
     desc: 'ระวัง! ขยะอันตรายมาแล้ว หากทิ้งขยะอันตรายผิดถัง จะถูกหักแต้มความดีหนักมาก และหน้าจอจะมืดไปชั่วขณะ!',
     knowledge: [
@@ -191,7 +191,7 @@ const STAGES = [
   },
   {
     level: 4,
-    title: 'ฐานที่ 4: ภารกิจผู้กำกับลูกเสือ',
+    title: 'ฐานที่ 4: แยกขยะความเร็วสูง',
     shortDesc: 'บททดสอบใหญ่! รัวคลิกฉีกถุงดำยักษ์ และชำแหละขยะสุดหิน!',
     desc: 'ขยะแยกยากรวมตัว! รัวคลิก "ระเบิดขยะถุงดำ" ให้แตกกระจาย! ถ้วยมาม่าและแก้วน้ำต้องจัดการก่อนทิ้ง มือต้องไวเพื่อโกยคะแนนสูงสุด!',
     knowledge: [
@@ -567,7 +567,7 @@ export default function App() {
         <span className="font-heading inline-flex items-center gap-1 bg-[#8b5a2b] text-[#fdf6e3] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
           <MapIcon size={14} /> แผนที่การเดินทางของลูกเสือ {playerName}
         </span>
-        <h2 className="font-heading text-3xl font-black text-[#5c3a21] mt-2">เลือกฐานฝึกกองร้อย</h2>
+        <h2 className="font-heading text-3xl font-black text-[#5c3a21] mt-2">เลือกฐานฝึก</h2>
         <p className="text-sm text-gray-600 font-bold mt-1">คะแนนสะสม: <span className="text-green-700 text-lg">{cumulativeScore}</span></p>
       </div>
 
